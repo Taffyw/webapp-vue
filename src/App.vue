@@ -19,6 +19,7 @@
 @import "sass/app";
 .child_view{
   margin: 0;
+  overflow: hidden;
   padding-top: 88px;
 }
 </style>
