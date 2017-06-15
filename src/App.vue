@@ -18,6 +18,7 @@
 <style lang="scss">
 @import "sass/app";
 .child_view{
+  display: block;
   padding-top: 88px;
 }
 </style>
