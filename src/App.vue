@@ -19,7 +19,7 @@
 @import "sass/app";
 .child_view{
   display: block;
-  margin: 0;
+  margin: 0px;
   padding-top: 88px;
 }
 </style>
