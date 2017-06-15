@@ -1,0 +1,55 @@
+/**
+reset file
+ */
+*,*:after,*:before{
+  box-sizing: border-box;
+}
+*{
+  margin: 0;
+  padding: 0;
+}
+html,body{
+  color: $mix-color;
+  background-color: $bg-color;
+}
+body{
+  font:12px/1.5 "Microsoft YaHei",Arial,Helvetica,sans-serif,"SimSun";
+  line-height: 1.42857143;
+}
+body,html{
+  margin: 0 auto;
+  position: relative;
+  max-width: 800px;
+  min-height: 100%;
+  min-width: 320px;
+  overflow-x: hidden;
+}
+
+ul,li,ol{
+  list-style: none;
+}
+input,button,select,textarea{outline:none;}
+button{
+  border: none;
+}
+a{
+  color: $text-color-l;
+  text-decoration:none;
+  &:hover{
+    text-decoration:none;
+    color: $text-color-m;
+  }
+  &:focus{
+    text-decoration:none;
+    color: $text-color-m;
+  }
+}
+.clearfix{
+  &::before,&::after{
+    display: table;
+    content: " ";
+  }
+  &::after{
+    clear: both;
+  }
+}
