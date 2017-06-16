@@ -12,6 +12,9 @@ html,body{
   color: $mix-color;
   background-color: $bg-color;
 }
+img{
+  vertical-align: middle;
+}
 body{
   font:12px/1.5 "Microsoft YaHei",Arial,Helvetica,sans-serif,"SimSun";
   line-height: 1.42857143;
