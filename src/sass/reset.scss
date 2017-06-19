@@ -10,7 +10,6 @@ reset file
 }
 html,body{
   color: $mix-color;
-  background-color: $bg-color;
 }
 img{
   vertical-align: middle;
@@ -22,7 +21,6 @@ body{
 body,html{
   margin: 0 auto;
   position: relative;
-  max-width: 800px;
   min-height: 100%;
   min-width: 320px;
   overflow-x: hidden;

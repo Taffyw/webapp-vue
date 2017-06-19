@@ -64,7 +64,6 @@ export default {
 <style scoped lang="scss">
   @import "../sass/var";
   .head{
-    background-color: $bg-color;
     z-index: 999;
     position: relative;
     text-align: center;
@@ -94,9 +93,11 @@ export default {
         font-size: $font-size-l;
         color: $mix-color;
         font-weight: normal;
+        text-shadow: 0 0 6px rgba(#fff,.4);
       }
     }
     >ul.tab{
+      background-color: rgba(#fff,.2);
       display: flex;
       li{
         flex: 1;

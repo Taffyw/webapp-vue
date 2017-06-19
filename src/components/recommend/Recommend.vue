@@ -1,14 +1,24 @@
 <template>
   <div class="recommend">
-    <div class="content" style="height: 10000px;background-color: rgba(255,255,255,.1)">
-      <a :href="i.linkUrl" v-for="i in slider">
-        <img :src="i.picUrl" alt=""  width="100%">
-      </a>
+    <div class="content">
+      <slider v-if="slider.length">
+        <div class="slider-item" v-for="i in slider">
+          <a :href="i.linkUrl">
+            <img :src="i.picUrl" alt="">
+          </a>
+        </div>
+      </slider>
+      <div class="log">
+        <h1>
+          afasfasf
+        </h1>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+  import Slider from '../../base/slider/Slider.vue'
   import {getAdvList} from '../../api/recommend'
   import {ERR_OK} from '../../api/common'
   export default {
@@ -30,16 +40,18 @@
           }
         })
       }
+    },
+    components: {
+      Slider
     }
   }
 </script>
 
 <style scoped lang="scss">
-  .recommend{
+  .recommend {
     position: fixed;
     width: 100%;
     top: 88px;
-    background-color: #fff;
     bottom: 0;
   }
 </style>
