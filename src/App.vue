@@ -20,7 +20,7 @@
 
   body.jay-theme::before {
     position: fixed;
-    background-image: url("./assets/bg.jpg");
+    background-image: url("./assets/bg.png");
     background-repeat: no-repeat;
     background-position: 50%;
     background-size: cover;
@@ -28,10 +28,8 @@
     height: 100%;
     top: 0;
     left: 0;
-    will-change: transform;
     z-index: -1;
     width: 100%;
-    filter: blur(6px)
   }
 
   .child_view {

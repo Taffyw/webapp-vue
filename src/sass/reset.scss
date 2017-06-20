@@ -54,3 +54,9 @@ a{
     clear: both;
   }
 }
+div,a,img,li {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select:none;
+}

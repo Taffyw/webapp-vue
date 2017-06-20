@@ -96,7 +96,8 @@
           snap: true,
           snapLoop: true,
           snapThreshold: 0.3,
-          snapSpeed: 400
+          snapSpeed: 400,
+          click: true
         })
         this.slider.on('scrollEnd', () => {
           let pageIndex = this.slider.getCurrentPage().pageX
@@ -133,12 +134,16 @@
           this.slider.goToPage(pageIndex, 0, 400)
         }, this.interval)
       }
+    },
+    destroyed () {
+      clearInterval(this.timer)
     }
   }
 </script>
 
 <style scoped lang="scss">
   @import "../../sass/var";
+
   .slider {
     position: relative;
     width: 100%;
