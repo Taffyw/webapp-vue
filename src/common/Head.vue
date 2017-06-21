@@ -33,7 +33,15 @@
     },
     watch: {
       $route (to, from) {
-        var path = to.path.substring(1)
+        this.changeNav()
+      }
+    },
+    mounted() {
+      this.changeNav()
+    },
+    methods: {
+      changeNav () {
+        var path = this.$route.path.substring(1)
         switch (path) {
           case '':
             this.cur = 0
@@ -48,11 +56,6 @@
             this.cur = 3
             break
         }
-        this.changeNav()
-      }
-    },
-    methods: {
-      changeNav () {
         let index = this.cur
         this.$refs.arr.style.webkitTransform = `translateX(${100 * index}%)`
         this.$refs.arr.style.transform = `translateX(100*${100 * index}%)`

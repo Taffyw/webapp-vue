@@ -1,12 +1,14 @@
 <template>
   <div id="app">
     <app-head></app-head>
-    <router-view class="child_view"></router-view>
+    <keep-alive>
+      <router-view></router-view>
+    </keep-alive>
   </div>
 </template>
 
 <script>
-  import AppHead from './common/Head.vue'
+  import AppHead from '@/common/Head.vue'
   export default {
     name: 'app',
     components: {
@@ -31,8 +33,14 @@
     z-index: -1;
     width: 100%;
   }
-
-  .child_view {
-
+  .app-content{
+    position: fixed;
+    width: 100%;
+    top: 88px;
+    bottom: 0;
+    .warpper {
+      height: 100%;
+      overflow: hidden;
+    }
   }
 </style>

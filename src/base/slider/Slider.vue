@@ -135,6 +135,9 @@
         }, this.interval)
       }
     },
+    activated() {
+      this._play()
+    },
     destroyed () {
       clearInterval(this.timer)
     }
