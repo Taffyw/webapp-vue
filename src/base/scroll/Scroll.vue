@@ -1,5 +1,5 @@
 <template>
-  <div class="scroll" ref="warpper">
+  <div class="scroll" ref="warpper" :probeType="3">
     <slot></slot>
   </div>
 </template>
@@ -20,6 +20,10 @@
       data: {
         type: Array,
         default: null
+      },
+      listenScroll: {
+        type: Boolean,
+        default: false
       }
     },
     mounted() {
@@ -43,9 +47,21 @@
           probeType: this.probeType,
           click: this.click
         })
+        if (this.listenScroll) {
+          let that = this
+          this.scroll.on('scroll', (pos) => {
+            that.$emit('scroll', pos)
+          })
+        }
       },
       fresh() {
         this.scroll && this.scroll.refresh()
+      },
+      scrollTo() {
+        this.scroll && this.scroll.scrollTo.apply(this.scroll, arguments)
+      },
+      scrollToElement() {
+        this.scroll && this.scroll.scrollToElement.apply(this.scroll, arguments)
       }
     }
   }
