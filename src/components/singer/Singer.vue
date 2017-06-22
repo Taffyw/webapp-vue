@@ -1,6 +1,7 @@
 <template>
   <div class="app-content singer">
-    <list-view :data="singer"></list-view>
+    <list-view :data="singer" @selectItem="goSingerDetail"></list-view>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -20,6 +21,9 @@
       this._getSingerList()
     },
     methods: {
+      goSingerDetail(item) {
+        this.$router.push({path: `/singer/${item.id}`, query: {name: item.name}})
+      },
       _getSingerList() {
         getSingerList().then(res => {
           if (res.code === ERR_OK) {
