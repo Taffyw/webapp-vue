@@ -68,7 +68,6 @@
   @import "../sass/var";
 
   .head {
-    z-index: 999;
     position: relative;
     text-align: center;
     color: $text-color-s;
@@ -76,7 +75,6 @@
     top: 0;
     left: 0;
     line-height: 44px;
-    position: fixed;
     width: 100%;
     height: 88px;
     .logo {
