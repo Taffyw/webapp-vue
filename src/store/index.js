@@ -10,6 +10,7 @@ import Vuex from 'vuex'
 import * as actions from './actions'
 import * as getters from './getters'
 import singer from './modules/singer'
+import play from './modules/play'
 import createLogger from 'vuex/dist/logger'
 
 Vue.use(Vuex)
@@ -20,7 +21,8 @@ export default new Vuex.Store({
   actions,
   getters,
   modules: {
-    singer
+    singer,
+    play
   },
   strict: debug,
   plugins: debug ? [createLogger()] : []
