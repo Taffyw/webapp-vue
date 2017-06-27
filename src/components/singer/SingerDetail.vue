@@ -1,12 +1,8 @@
 <template>
   <transition name="slide">
     <div class="singer-detail">
-      <i class="iconfont icon-fanhui" @click="goBack"></i>
-      <h2>我是歌手详情页面</h2>
-      <h4>{{getSinger.name}}</h4>
-      <h6 v-for="i in songList">
-        {{i.musicData.songname}}
-      </h6>
+      <music-list :songs=songList :title=getSinger.name :bg=getSinger.face></music-list>
+      <loading v-show="!songList.length" loadingText="正在拼命加载中..." :center=true></loading>
     </div>
   </transition>
 </template>
@@ -14,6 +10,9 @@
 <script>
   import {getSingerDetail} from 'api/singer'
   import {mapGetters} from 'vuex'
+  import {CreateSong} from '@/common/js/song'
+  import {ERR_OK} from 'api/common'
+  import MusicList from '@/components/musiclist/MusicList.vue'
   export default {
     name: 'singerdetail',
     data () {
@@ -22,10 +21,7 @@
       }
     },
     mounted() {
-      getSingerDetail(this.getSinger.id).then(res => {
-        this.songList = res.data.list
-        console.dir(res.data.list)
-      })
+      this.initDetail()
     },
     computed: {
       ...mapGetters([
@@ -33,9 +29,33 @@
       ])
     },
     methods: {
+      initDetail() {
+        if (!this.getSinger.id) {
+          this.$router.push('/singer')
+          return
+        }
+        getSingerDetail(this.getSinger.id).then(res => {
+          if (res.code === ERR_OK) {
+            this.songList = this.resetData(res.data.list)
+          }
+        })
+      },
+      resetData(item) {
+        let ret = []
+        item.forEach((s) => {
+          let {musicData} = s
+          if (musicData.songid && musicData.albummid) {
+            ret.push(CreateSong(musicData))
+          }
+        })
+        return ret
+      },
       goBack() {
         history.go(-1)
       }
+    },
+    components: {
+      MusicList
     }
   }
 </script>
