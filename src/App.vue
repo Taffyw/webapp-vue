@@ -4,15 +4,18 @@
     <keep-alive>
       <router-view></router-view>
     </keep-alive>
+    <player></player>
   </div>
 </template>
 
 <script>
   import AppHead from '@/common/Head.vue'
+  import Player from '@/components/player/Player'
   export default {
     name: 'app',
     components: {
-      AppHead
+      AppHead,
+      Player
     }
   }
 </script>
