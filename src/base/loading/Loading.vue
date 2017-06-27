@@ -1,5 +1,5 @@
 <template>
-  <div class="loading">
+  <div class="loading" :class="{'abs':center}">
     <span class="circles-loader"></span>
     <p>{{loadingText}}</p>
   </div>
@@ -12,6 +12,10 @@
       loadingText: {
         type: String,
         default: '加载中...'
+      },
+      center: {
+        type: Boolean,
+        default: false
       }
     },
     mounted() {},
@@ -104,6 +108,14 @@
     p{
       margin-top: 25px;
       color: $text-color-l;
+    }
+    &.abs{
+      z-index: 999;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      left: 50%;
+      margin-left: -50px;
     }
   }
 </style>
