@@ -19,6 +19,12 @@
           </div>
         </div>
         <div class="bottom">
+          <progress-bar
+            :ltime=setMin(curTime)
+            :rtime=setMin(curSong.duration)
+            :pros=pros
+            @TimeChange=timeChange
+          ></progress-bar>
           <div class="tools">
             <div class="icon left">
               <i class="iconfont icon-shunxubofang"></i>
@@ -56,20 +62,25 @@
         </div>
       </div>
     </transition>
-    <audio ref="audio" :src=curSong.url @canplay="ready" @error="error"></audio>
+    <audio ref="audio" :src=curSong.url @canplay="ready" @error="error" @timeupdate="timeUpdate"></audio>
   </div>
 </template>
 
 <script>
   import {mapGetters, mapMutations} from 'vuex'
+  import ProgressBar from 'base/progressbar/ProgressBar'
   export default {
     name: 'player',
     data () {
       return {
-        readyFlag: false
+        readyFlag: false,
+        curTime: 0
       }
     },
     computed: {
+      pros() {
+        return this.curTime / this.curSong.duration
+      },
       cd() {
         return this.playing ? 'play' : 'play pause'
       },
@@ -90,7 +101,13 @@
         'curIndex'
       ])
     },
+    filters: {},
     watch: {
+      pros: function (val) {
+        if (val === 1) {
+          this.next()
+        }
+      },
       curSong: function (val) {
         this.$nextTick(() => {
           this.$refs.audio.play()
@@ -109,6 +126,20 @@
     mounted() {
     },
     methods: {
+      timeChange(pros) {
+        this.setPlaying(true)
+        this.$refs.audio.currentTime = this.curSong.duration * pros
+      },
+      setMin(val) {
+        val = val | 0
+        let m = val / 60 | 0
+        let s = val % 60
+        s < 10 ? s = '0' + s : s
+        return `${m}:${s}`
+      },
+      timeUpdate(e) {
+        this.curTime = e.target.currentTime
+      },
       ready() {
         this.readyFlag = true
       },
@@ -157,7 +188,9 @@
         this.setFull(true)
       }
     },
-    components: {}
+    components: {
+      ProgressBar
+    }
   }
 </script>
 
@@ -387,6 +420,7 @@
       transition: all .4s;
     }
     &.mini-player-enter, &.mini-player-leave-to {
+      transform: translate3d(0, 60px, 0);
       opacity: 0;
     }
   }
