@@ -1,6 +1,6 @@
 <template>
   <div class="progress-bar">
-    <span class="time l">{{ltime}}</span>
+    <span class="time l" v-show="flag">{{ltime}}</span>
     <div class="bar-warp" ref="progressbar" @click="clickBar">
       <div class="bar">
         <div class="bar-line">
@@ -15,7 +15,7 @@
         </div>
       </div>
     </div>
-    <span class="time r">{{rtime}}</span>
+    <span class="time r" v-show="flag">{{rtime}}</span>
   </div>
 </template>
 
@@ -23,6 +23,10 @@
   export default {
     name: 'progressbar',
     props: {
+      flag: {
+        type: Boolean,
+        default: true
+      },
       pros: {
         type: Number,
         default: 0
@@ -46,6 +50,9 @@
         if (val > 0 && !this.touch.touching) {
           let barWidth = this.$refs.progressbar.clientWidth - 16
           let offsetWidth = val * barWidth
+          if (offsetWidth >= barWidth) {
+            offsetWidth = barWidth
+          }
           this.setOffset(offsetWidth)
         }
       }

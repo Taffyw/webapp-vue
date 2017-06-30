@@ -5,6 +5,9 @@
  * Time: 10:12
  *
  */
+import {getlyric} from 'api/song'
+import {ERR_OK} from 'api/common'
+import {Base64} from 'js-base64'
 /**
  * 歌曲构造函数
  */
@@ -18,6 +21,19 @@ export default class Song {
     this.duration = duration
     this.image = image
     this.url = url
+  }
+
+  getLyric() {
+    console.log('请求歌词')
+    if (this.lyric) {
+      return Promise.resolve()
+    }
+    getlyric(this.mid).then((res) => {
+      if (res.code === ERR_OK) {
+        this.lyric = Base64.decode(res.lyric)
+        console.log(this.lyric)
+      }
+    })
   }
 }
 

@@ -26,8 +26,8 @@
             @TimeChange=timeChange
           ></progress-bar>
           <div class="tools">
-            <div class="icon left">
-              <i class="iconfont icon-shunxubofang"></i>
+            <div class="icon left" @click="setMode">
+              <i class="iconfont" :class="modeicon"></i>
             </div>
             <div class="icon left" @click="prev">
               <i class="iconfont icon-shangyiqu2"></i>
@@ -50,6 +50,13 @@
         <div class="icon" :class="cd">
           <img :src=curSong.image>
         </div>
+        <progress-bar
+          :ltime=setMin(curTime)
+          :rtime=setMin(curSong.duration)
+          :pros=pros
+          @TimeChange=timeChange
+          :flag="false"
+        ></progress-bar>
         <div class="text">
           <h2 v-html="curSong.name"></h2>
           <p v-html="curSong.singer"></p>
@@ -62,12 +69,14 @@
         </div>
       </div>
     </transition>
-    <audio ref="audio" :src=curSong.url @canplay="ready" @error="error" @timeupdate="timeUpdate"></audio>
+    <audio ref="audio" :src=curSong.url @canplay="ready" @error="error" @timeupdate="timeUpdate" @ended="end"></audio>
   </div>
 </template>
 
 <script>
   import {mapGetters, mapMutations} from 'vuex'
+  import {playMode} from '@/common/js/config'
+  import {shuffle} from '@/common/js/util'
   import ProgressBar from 'base/progressbar/ProgressBar'
   export default {
     name: 'player',
@@ -78,6 +87,9 @@
       }
     },
     computed: {
+      modeicon() {
+        return this.mode === playMode.sequence ? 'icon-shunxubofang' : this.mode === playMode.random ? 'icon-suijibofang' : 'icon-danquxunhuan'
+      },
       pros() {
         return this.curTime / this.curSong.duration
       },
@@ -98,19 +110,20 @@
         'fullScreen',
         'curSong',
         'playList',
-        'curIndex'
+        'curIndex',
+        'mode',
+        'sufxPlayList'
       ])
     },
     filters: {},
     watch: {
-      pros: function (val) {
-        if (val === 1) {
-          this.next()
+      curSong: function (val, old) {
+        if (val.id === old.id) {
+          return
         }
-      },
-      curSong: function (val) {
         this.$nextTick(() => {
           this.$refs.audio.play()
+          this.curSong.getLyric()
         })
       },
       playing: function (val) {
@@ -126,6 +139,36 @@
     mounted() {
     },
     methods: {
+      setMode() {
+        const mode = (this.mode + 1) % 3
+        this.setPlayMode(mode)
+        let songList = null
+        if (mode === playMode.random) {
+          songList = shuffle(this.sufxPlayList)
+        } else {
+          songList = this.sufxPlayList
+        }
+        this.resetCurIndex(songList)
+        this.setPlayList(songList)
+      },
+      end() {
+        if (this.mode === playMode.loop) {
+          this.loop()
+        } else {
+          this.next()
+        }
+      },
+      loop() {
+        console.log(1)
+        this.$refs.audio.currentTime = 0
+        this.$refs.audio.play()
+      },
+      resetCurIndex(songList) {
+        let index = songList.findIndex((item) => {
+          return item.id === this.curSong.id
+        })
+        this.setPlayIndex(index)
+      },
       timeChange(pros) {
         this.setPlaying(true)
         this.$refs.audio.currentTime = this.curSong.duration * pros
@@ -144,11 +187,14 @@
         this.readyFlag = true
       },
       error() {
+        this.readyFlag = true
       },
       ...mapMutations({
         setFull: 'SET_FULL_SCREEN',
         setPlaying: 'SET_PLAY_STATE',
-        setPlayIndex: 'SET_PLAY_INDEX'
+        setPlayIndex: 'SET_PLAY_INDEX',
+        setPlayMode: 'SET_PLAY_MODE',
+        setPlayList: 'SET_PLAY_LIST'
       }),
       togglePlay() {
         this.setPlaying(!this.playing)
@@ -347,6 +393,13 @@
     background-color: rgba(#333, .9);
     display: flex;
     align-items: center;
+    .progress-bar {
+      position: absolute;
+      top: -5px;
+      width: 100%;
+      right: 0;
+      padding: 0 10px 0 70px;
+    }
     .icon {
       margin: 0 10px 0 20px;
       width: 40px;
@@ -368,6 +421,7 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
+      margin-top: 8px;
       h2 {
         font-weight: 400;
         color: #fff;
@@ -381,7 +435,7 @@
     .tool {
       flex: 0 0 30px;
       width: 30px;
-      margin: 0 10px;
+      margin: 8px 10px 0;
       i {
         font-size: 30px;
       }

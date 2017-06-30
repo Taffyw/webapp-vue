@@ -4,7 +4,7 @@
     <div class="title">{{title}}</div>
     <div class="music-bg" :style="bgObj" ref="imgbg">
       <div class="filter"></div>
-      <button class="play-btn" v-show="btnShow && songs.length>0">
+      <button class="play-btn" v-show="btnShow && songs.length>0" @click="suffle">
         <i class="iconfont icon-bofang"></i>
         随机播放全部
       </button>
@@ -84,8 +84,14 @@
     },
     methods: {
       ...mapActions([
-        'selectPlay'
+        'selectPlay',
+        'sufflePlay'
       ]),
+      suffle() {
+        this.sufflePlay({
+          list: this.songs
+        })
+      },
       selectItem(item, index) {
         this.selectPlay({
           list: this.songs,
