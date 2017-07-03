@@ -1,5 +1,5 @@
 <template>
-  <div class="app-content recommend">
+  <div class="app-content recommend" ref="recommend">
     <scroll ref="scroll" class="warpper" :data="songList">
       <div class="content">
         <slider v-if="slider.length">
@@ -14,7 +14,7 @@
             <span>推荐歌单</span>
           </div>
           <ul>
-            <li v-for="i in songList">
+            <li v-for="i in songList" @click="_goListDetail(i)">
               <div class="song-item">
                 <div class="time">{{i.commit_time}}</div>
                 <div class="img"><img v-lazy="i.imgurl" @load="refresh" alt=""></div>
@@ -28,6 +28,7 @@
         </div>
       </div>
     </scroll>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -35,8 +36,11 @@
   import Slider from 'base/slider/Slider.vue'
   import {getAdvList, getSongSheet} from 'api/recommend'
   import {ERR_OK} from 'api/common'
+  import {mapMutations} from 'vuex'
+  import {playListMixin} from '@/common/js/mixin'
   export default {
     name: 'hello',
+    mixins: [playListMixin],
     data () {
       return {
         slider: [],
@@ -49,6 +53,17 @@
       this._getSongList()
     },
     methods: {
+      ...mapMutations({
+        setSinger: 'SET_SINGER'
+      }),
+      _goListDetail(item) {
+        let data = {}
+        data.id = item.dissid
+        data.name = item.dissname
+        data.face = item.imgurl
+        this.setSinger(data)
+        this.$router.push({path: `/musiclist/${data.id}`})
+      },
       _getAdvList () {
         getAdvList().then((res) => {
           if (res.code === ERR_OK) {
@@ -71,6 +86,11 @@
       },
       refresh() {
         this.$refs.scroll.fresh()
+      },
+      handlePlayList(list) {
+        const bottom = list.length > 0 ? '60px' : ''
+        this.$refs.recommend.style.bottom = bottom
+        this.refresh()
       }
     },
     components: {

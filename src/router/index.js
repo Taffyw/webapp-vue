@@ -5,6 +5,7 @@ import Recommend from '@/components/recommend/Recommend.vue'
 import Singer from '@/components/singer/Singer.vue'
 import Search from '@/components/search/Search.vue'
 import SingerDetail from '@/components/singer/SingerDetail.vue'
+import MusicListDetail from '@/components/recommend/MusicListDetail.vue'
 Vue.use(Router)
 
 export default new Router({
@@ -12,7 +13,13 @@ export default new Router({
     {
       path: '/',
       name: 'recommend',
-      component: Recommend
+      component: Recommend,
+      children: [
+        {
+          path: 'musiclist/:id',
+          component: MusicListDetail
+        }
+      ]
     },
     {
       path: '/singer',

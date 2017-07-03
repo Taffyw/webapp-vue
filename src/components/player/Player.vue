@@ -9,16 +9,40 @@
           <div class="title" v-html="curSong.name"></div>
           <div class="sub" v-html="curSong.singer"></div>
         </div>
-        <div class="mid">
-          <div class="mid-img">
+        <div class="mid"
+             @touchstart.prevent="midStart"
+             @touchmove.prevent="midMove"
+             @touchend="midEnd"
+        >
+          <div class="mid-img" ref="midImg">
             <div class="cd-w">
               <div class="cd" :class="cd">
                 <img :src=curSong.image>
               </div>
             </div>
+            <div class="playing-txt">
+              <p>{{playingTxt}}</p>
+            </div>
+          </div>
+          <div class="mid-lyric" ref="showLyric">
+            <scroll :data="currentLyric && currentLyric.lines" ref="lyricScroll">
+              <div class="lyric-warp">
+                <div v-if="currentLyric">
+                  <p v-for="(i,index) in currentLyric.lines"
+                     ref="line"
+                     :class="{'cur':currentLine === index}">
+                    {{i.txt}}
+                  </p>
+                </div>
+              </div>
+            </scroll>
           </div>
         </div>
         <div class="bottom">
+          <div class="dot-warp">
+            <span :class="{'active':currentShow === 'cd'}"></span>
+            <span :class="{'active':currentShow === 'lyric'}"></span>
+          </div>
           <progress-bar
             :ltime=setMin(curTime)
             :rtime=setMin(curSong.duration)
@@ -78,12 +102,18 @@
   import {playMode} from '@/common/js/config'
   import {shuffle} from '@/common/js/util'
   import ProgressBar from 'base/progressbar/ProgressBar'
+  import Lyric from 'lyric-parser'
   export default {
     name: 'player',
     data () {
       return {
         readyFlag: false,
-        curTime: 0
+        curTime: 0,
+        currentLyric: null,
+        currentLine: 0,
+        currentShow: 'cd',
+        touch: {},
+        playingTxt: ''
       }
     },
     computed: {
@@ -121,10 +151,14 @@
         if (val.id === old.id) {
           return
         }
-        this.$nextTick(() => {
+        if (this.currentLyric) {
+          this.currentLyric.stop()
+        }
+        clearInterval(this.timer)
+        this.timer = setTimeout(() => {
           this.$refs.audio.play()
-          this.curSong.getLyric()
-        })
+          this.getLyric()
+        }, 1000)
       },
       playing: function (val) {
         if (!this.readyFlag) {
@@ -162,6 +196,9 @@
         console.log(1)
         this.$refs.audio.currentTime = 0
         this.$refs.audio.play()
+        if (this.currentLyric) {
+          this.currentLyric.seek(0)
+        }
       },
       resetCurIndex(songList) {
         let index = songList.findIndex((item) => {
@@ -170,8 +207,15 @@
         this.setPlayIndex(index)
       },
       timeChange(pros) {
+        if (!this.playing) {
+          this.togglePlay()
+        }
+        let time = this.curSong.duration * pros
+        if (this.currentLyric) {
+          this.currentLyric.seek(time * 1000)
+        }
         this.setPlaying(true)
-        this.$refs.audio.currentTime = this.curSong.duration * pros
+        this.$refs.audio.currentTime = time
       },
       setMin(val) {
         val = val | 0
@@ -198,9 +242,16 @@
       }),
       togglePlay() {
         this.setPlaying(!this.playing)
+        if (this.currentLyric) {
+          this.currentLyric.togglePlay()
+        }
       },
       prev() {
         if (!this.readyFlag) {
+          return
+        }
+        if (this.playList.length === 1) {
+          this.loop()
           return
         }
         let index = this.curIndex + 1
@@ -215,6 +266,10 @@
       },
       next() {
         if (!this.readyFlag) {
+          return
+        }
+        if (this.playList.length === 1) {
+          this.loop()
           return
         }
         let index = this.curIndex - 1
@@ -232,6 +287,90 @@
       },
       open() {
         this.setFull(true)
+      },
+      getLyric() {
+        this.curSong.getLyric().then(res => {
+          this.currentLyric = new Lyric(res, this.LyricChange)
+          if (this.playing) {
+            this.currentLyric.play()
+          }
+        }).catch(() => {
+          this.currentLyric = null
+          this.playingTxt = ''
+          this.currentLine = 0
+        })
+      },
+      LyricChange({lineNum, txt}) {
+        this.playingTxt = txt
+        if (lineNum) {
+          this.currentLine = lineNum
+        }
+        if (lineNum > 5) {
+          let line = this.$refs.line[lineNum - 5]
+          this.$refs.lyricScroll.scrollToElement(line, 1000)
+        } else {
+          this.$refs.lyricScroll.scrollTo(0, 0, 1000)
+        }
+      },
+      midStart(e) {
+        this.touch.flag = true
+        this.touch.moved = false
+        this.touch.startX = e.touches[0].pageX
+        this.touch.startY = e.touches[0].pageY
+      },
+      midMove(e) {
+        if (!this.touch.flag) {
+          return
+        }
+        const t = e.touches[0]
+        let Mx = t.pageX - this.touch.startX
+        let My = t.pageY - this.touch.startY
+        if (Math.abs(My) > Math.abs(Mx)) {
+          return
+        }
+        if (!this.touch.moved) {
+          this.touch.moved = true
+        }
+        const left = this.currentShow === 'cd' ? 0 : -window.innerWidth
+        const width = Math.min(0, Math.max(-window.innerWidth, Mx + left))
+        this.touch.det = Math.abs(width / window.innerWidth)
+        this.$refs.midImg.style.opacity = 1 - this.touch.det
+        this.setShowWidth(width)
+      },
+      midEnd(e) {
+        if (!this.touch.moved) {
+          return
+        }
+        let width
+        let opt
+        if (this.currentShow === 'cd') {
+          if (this.touch.det > 0.1) {
+            opt = 0
+            width = -window.innerWidth
+            this.currentShow = 'lyric'
+          } else {
+            width = 0
+            opt = 1
+          }
+        } else {
+          opt = 1
+          if (this.touch.det < 0.9) {
+            width = 0
+            this.currentShow = 'cd'
+            opt = 1
+          } else {
+            width = -window.innerWidth
+            opt = 0
+          }
+        }
+        this.$refs.midImg.style.opacity = opt
+        this.setShowWidth(width)
+        this.touch.flag = false
+        this.touch.det = 0
+      },
+      setShowWidth(width) {
+        this.$refs.showLyric.style.transform = `translate3d(${width}px,0,0)`
+        this.$refs.showLyric.style.webkitTransform = `translate3d(${width}px,0,0)`
       }
     },
     components: {
@@ -300,6 +439,7 @@
       font-size: 0;
       white-space: nowrap;
       .mid-img {
+        transition: all .3s;
         height: 0;
         width: 100%;
         padding-top: 80%;
@@ -336,11 +476,68 @@
         }
 
       }
+      .mid-lyric {
+        transition: all .3s;
+        display: inline-block;
+        vertical-align: top;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        .scroll {
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+        }
+        .lyric-warp {
+          width: 80%;
+          margin: 0 auto;
+          overflow: hidden;
+        }
+        p {
+          line-height: 32px;
+          font-size: $font-size-m;
+          text-align: center;
+          color: $text-color-s;
+          transition: all .3s;
+          &.cur {
+            color: #fff;
+          }
+        }
+      }
+      .playing-txt {
+        width: 80%;
+        margin: 30px auto;
+        overflow: hidden;
+        text-align: center;
+        p {
+          font-size: $font-size-m;
+          color: $text-color-l;
+          height: 20px;
+          line-height: 20px;
+        }
+      }
     }
     .bottom {
       position: absolute;
       bottom: 50px;
       width: 100%;
+      .dot-warp {
+        font-size: 0;
+        text-align: center;
+        overflow: hidden;
+        span {
+          display: inline-block;
+          width: 8px;
+          height: 8px;
+          border-radius: 4px;
+          transition: all .3s;
+          background-color: $text-color-l;
+          margin: 0 4px;
+          &.active {
+            width: 20px;
+          }
+        }
+      }
       .tools {
         display: flex;
         align-items: center;

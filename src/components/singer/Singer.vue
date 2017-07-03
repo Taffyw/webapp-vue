@@ -1,6 +1,6 @@
 <template>
-  <div class="app-content singer">
-    <list-view :data="singer" @selectItem="goSingerDetail"></list-view>
+  <div class="app-content singer" ref="singer">
+    <list-view :data="singer" @selectItem="goSingerDetail" ref="listview"></list-view>
     <router-view></router-view>
   </div>
 </template>
@@ -11,8 +11,10 @@
   import {ERR_OK} from 'api/common'
   import Singer from '@/common/js/singer'
   import ListView from 'base/listview/ListView'
+  import {playListMixin} from '@/common/js/mixin'
   export default {
     name: 'singer',
+    mixins: [playListMixin],
     data () {
       return {
         singer: []
@@ -81,6 +83,11 @@
           return a.title.charCodeAt(0) - b.title.charCodeAt(0)
         })
         return hot.concat(_list)
+      },
+      handlePlayList(list) {
+        const bottom = list.length > 0 ? '60px' : ''
+        this.$refs.singer.style.bottom = bottom
+        this.$refs.listview.fresh()
       }
     },
     components: {

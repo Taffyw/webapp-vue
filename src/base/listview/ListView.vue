@@ -102,6 +102,9 @@
         this.touch.activeIndex = index
         this._scrollTo(index)
       },
+      fresh() {
+        this.$refs.scroll.fresh()
+      },
       onScroll(pos) {
         this.clientY = pos.y
       },

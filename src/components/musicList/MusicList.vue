@@ -19,7 +19,9 @@
 <script>
   import SongList from '@/base/songlist/SongList.vue'
   import {mapActions} from 'vuex'
+  import {playListMixin} from '@/common/js/mixin'
   export default {
+    mixins: [playListMixin],
     name: 'musiclist',
     props: {
       title: {
@@ -103,6 +105,11 @@
       },
       songScroll(res) {
         this.scrollY = res.y
+      },
+      handlePlayList(list) {
+        const bottom = list.length > 0 ? '60px' : ''
+        this.$refs.list.$el.style.bottom = bottom
+        this.$refs.list.fresh()
       }
     },
     components: {
@@ -113,6 +120,7 @@
 
 <style scoped lang="scss">
   @import "~sass/var";
+  @import "~sass/mixin";
 
   .music-list {
     top: 0;
@@ -147,6 +155,8 @@
       line-height: 40px;
       font-size: $font-size-l;
       text-align: center;
+      @include ellipsis(1)
+
     }
     .music-bg {
       position: relative;

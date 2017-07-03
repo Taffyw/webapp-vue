@@ -24,19 +24,21 @@ export default class Song {
   }
 
   getLyric() {
-    console.log('请求歌词')
     if (this.lyric) {
-      return Promise.resolve()
+      return Promise.resolve(this.lyric)
     }
-    getlyric(this.mid).then((res) => {
-      if (res.code === ERR_OK) {
-        this.lyric = Base64.decode(res.lyric)
-        console.log(this.lyric)
-      }
+    return new Promise((resolve, reject) => {
+      getlyric(this.mid).then((res) => {
+        if (res.code === ERR_OK) {
+          this.lyric = Base64.decode(res.lyric)
+          resolve(this.lyric)
+        } else {
+          reject('no lyric')
+        }
+      })
     })
   }
 }
-
 export function CreateSong(music) {
   return new Song({
     id: music.songid,

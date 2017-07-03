@@ -36,3 +36,23 @@ export function getSingerDetail(singerid) {
   })
   return jsonp(url, data, options)
 }
+
+export function getMusciListDetail(lid) {
+  const url = 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg'
+  const data = Object.assign({}, commonParams, {
+    sin: 0,
+    ein: 29,
+    sortId: 5,
+    categoryId: 10000000,
+    rnd: Math.random(),
+    type: 1,
+    format: 'json',
+    g_tk: 1321691351,
+    hostUin: 0,
+    notice: 0,
+    platform: 'yqq',
+    needNewCode: 0,
+    disstid: lid
+  })
+  return jsonp(url, data, options)
+}
